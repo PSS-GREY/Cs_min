@@ -1,7 +1,7 @@
 
 // api.js
 export async function askGemini(query) {
-  const API_KEY = "AIzaSyA2d0fdCWtC0Fw6-flZD7goo8Mu_enBoe8"; // replace with your Gemini API key
+  const API_KEY = "AIzaSyALYFkkMqnY0whnqAbNeyfDe0H0Q6dt8ZI"; // replace with your Gemini API key
   const MODEL = "gemini-1.5-flash-latest"; // flash = fast/cheap, pro = more detailed
 
   try {
@@ -45,3 +45,4 @@ Here is the question:\n\n${query}`,
     return "⚠️ Error: Could not reach Gemini service.";
   }
 }
+
