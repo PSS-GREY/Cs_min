@@ -69,7 +69,7 @@ It appears as rough, scaly patches on sun-exposed areas. Some cases can progress
 to squamous cell carcinoma, so treatment is recommended.`
   },
   {
-    keywords: ["squamous cell carcinoma", "scc"],
+    keywords: ["squamous cell" ,"carcinoma", "scc"],
     answer: `Squamous Cell Carcinoma (SCC) is a common type of skin cancer that appears 
 as scaly, red patches, open sores, or warty growths. It can spread if untreated, 
 so early medical care is important.`
@@ -136,3 +136,4 @@ export function searchKnowledgeBase(query) {
 
   return null; // fallback to API
 }
+
