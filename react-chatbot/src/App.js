@@ -79,10 +79,16 @@ function App() {
       setResult(data);
 
       setMessages((prev) => [
-        ...prev,
-        { sender: "user", text: "📷 Uploaded an image for analysis" },
-        { sender: "bot", text: `🧾 Prediction: ${data.prediction || "Unknown"}` }
-      ]);
+  ...prev,
+  { sender: "user", text: "📷 Uploaded an image for analysis" },
+  {
+    sender: "bot",
+    text: `🧾 Prediction: ${data.res || "Unknown"}\n📊 Confidence: ${
+      data.confidence ? (data.confidence * 100).toFixed(2) + "%" : "N/A"
+    }`
+  }
+]);
+
 
     } catch (err) {
       console.error("Error", err);
@@ -200,15 +206,18 @@ function App() {
           </form>
         )}
 
-        {result && (
-          <div className="mt-4 p-3 bg-gray-100 rounded-lg">
-            <h2 className="font-bold">Result:</h2>
-            <p>Prediction: {result.prediction}</p>
-          </div>
-        )}
+       {result && (
+  <div className="mt-4 p-3 bg-gray-100 rounded-lg">
+    <h2 className="font-bold">Result:</h2>
+    <p>Prediction: {result.res}</p>
+    <p>Confidence: {(result.confidence * 100).toFixed(2)}%</p>
+  </div>
+)}
+
       </div>
     </div>
   );
 }
 
 export default App;
+
