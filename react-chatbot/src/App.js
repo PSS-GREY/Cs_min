@@ -83,9 +83,7 @@ function App() {
   { sender: "user", text: "📷 Uploaded an image for analysis" },
   {
     sender: "bot",
-    text: `🧾 Prediction: ${data.res || "Unknown"}\n📊 Confidence: ${
-      data.confidence ? (data.confidence * 100).toFixed(2) + "%" : "N/A"
-    }`
+    text: `🧾 Prediction: ${data.res || "Unknown"}`
   }
 ]);
 
@@ -220,5 +218,6 @@ function App() {
 }
 
 export default App;
+
 
 
