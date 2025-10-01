@@ -210,7 +210,7 @@ function App() {
   <div className="mt-4 p-3 bg-gray-100 rounded-lg">
     <h2 className="font-bold">Result:</h2>
     <p>Prediction: {result.res}</p>
-    <p>Confidence: {(result.confidence * 100).toFixed(2)}%</p>
+   
   </div>
 )}
 
@@ -220,4 +220,5 @@ function App() {
 }
 
 export default App;
+
 
