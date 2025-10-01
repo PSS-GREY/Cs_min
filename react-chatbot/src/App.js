@@ -10,8 +10,9 @@ function App() {
   ]);
   const [input, setInput] = useState("");
   const [listening, setListening] = useState(false);
-  const [file, setFile] = useState(null);   // ⬅️ for image file
-  const [result, setResult] = useState(null); // ⬅️ backend response
+  const [file, setFile] = useState(null);
+  const [result, setResult] = useState(null);
+  const [showImageOptions, setShowImageOptions] = useState(false);
   const voiceRef = useRef(null);
 
   // Initialize voice recognition
@@ -56,7 +57,7 @@ function App() {
     }
   };
 
-  // ⬅️ Image upload submit
+  // Upload / Camera submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -75,10 +76,8 @@ function App() {
       });
 
       let data = await res.json();
-      console.log(data);
       setResult(data);
 
-      // Show result in chat
       setMessages((prev) => [
         ...prev,
         { sender: "user", text: "📷 Uploaded an image for analysis" },
@@ -121,8 +120,8 @@ function App() {
           ))}
         </div>
 
-        {/* Text Input + Voice + Send */}
-        <div className="flex mt-4">
+        {/* Text + Voice + Camera + Send */}
+        <div className="flex mt-4 relative">
           <input
             type="text"
             value={input}
@@ -135,12 +134,49 @@ function App() {
           {/* Voice button */}
           <button
             onClick={handleVoiceToggle}
-            className={`px-4 py-2 ${
-              listening ? "bg-red-500" : "bg-green-500"
-            } text-white`}
+            className={`px-4 py-2 ${listening ? "bg-red-500" : "bg-green-500"} text-white`}
           >
             {listening ? "Stop 🎤" : "🎤"}
           </button>
+
+          {/* Camera button */}
+          <div className="relative">
+            <button
+              onClick={() => setShowImageOptions(!showImageOptions)}
+              className="bg-purple-600 text-white px-4 py-2 hover:bg-purple-700"
+            >
+              📷
+            </button>
+            {showImageOptions && (
+              <div className="absolute bottom-12 right-0 bg-white shadow-lg rounded-lg w-36 z-10">
+                <label className="block px-4 py-2 cursor-pointer hover:bg-gray-200">
+                  📁 Upload
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      setFile(e.target.files[0]);
+                      setShowImageOptions(false);
+                    }}
+                    className="hidden"
+                  />
+                </label>
+                <label className="block px-4 py-2 cursor-pointer hover:bg-gray-200">
+                  📸 Take Photo
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={(e) => {
+                      setFile(e.target.files[0]);
+                      setShowImageOptions(false);
+                    }}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+            )}
+          </div>
 
           {/* Send button */}
           <button
@@ -151,21 +187,18 @@ function App() {
           </button>
         </div>
 
-        {/* Image Upload */}
-        <form onSubmit={handleSubmit} className="mt-4 flex items-center gap-2">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setFile(e.target.files[0])}
-            className="border p-2 rounded-lg"
-          />
-          <button
-            type="submit"
-            className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
-          >
-            Upload Image
-          </button>
-        </form>
+        {/* Hidden form auto-submits when file is chosen */}
+        {file && (
+          <form onSubmit={handleSubmit} className="mt-4 flex items-center gap-2">
+            <span className="text-sm text-gray-700">Selected: {file.name}</span>
+            <button
+              type="submit"
+              className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
+            >
+              Analyze
+            </button>
+          </form>
+        )}
 
         {result && (
           <div className="mt-4 p-3 bg-gray-100 rounded-lg">
