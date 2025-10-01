@@ -5,7 +5,7 @@ import os
 
 main = Blueprint('main', __name__)
 
-GEMINI_API_KEY = os.environ.get(GEMINI_API_KEY)  # store securely in Render env
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")  # store securely in Render env
 GEMINI_MODEL = "models/gemini-1.5-flash"
 
 @main.route('/gemini', methods=['POST'])
@@ -47,4 +47,5 @@ def gemini():
     except Exception as e:
         print("Gemini Error:", e)
         return jsonify({"error": str(e)}), 500
+
 
