@@ -1,24 +1,32 @@
-// server.js (Node/Express example)
+// server.js
 const express = require("express");
 const fetch = require("node-fetch");
 const cors = require("cors");
+
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 app.post("/gemini", async (req, res) => {
-  const { question } = req.body;
+  const { query } = req.body;
+  const API_KEY = "AIzaSyDZS7tBch_tpyj9imIAg_zIZZZ3bXLMH2A";
+  const MODEL = "models/gemini-1.5-flash";
 
   try {
     const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/models/gemini-1.5-flash:generateContent?key=YOUR_API_KEY",
+      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          prompt: { text: question },
-          temperature: 0.7,
-          candidate_count: 1
+          contents: [
+            {
+              role: "user",
+              parts: [
+                { text: `Answer in 4–6 sentences: ${query}` }
+              ],
+            },
+          ],
         }),
       }
     );
@@ -26,7 +34,8 @@ app.post("/gemini", async (req, res) => {
     const data = await response.json();
     res.json(data);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Gemini Error:", err);
+    res.status(500).json({ error: "Could not reach Gemini service" });
   }
 });
 
