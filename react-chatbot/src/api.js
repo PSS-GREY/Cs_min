@@ -1,16 +1,21 @@
 // api.js
 export async function askGemini(query) {
   try {
-    const res = await fetch("http://localhost:5000/gemini", {
+    const res = await fetch("http://localhost:5000/gemini", { // or deployed backend URL
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query }),
     });
+
     const data = await res.json();
 
-    // Extract the response text if available
+    // Extract Gemini text if available
     if (data?.candidates?.[0]?.content?.parts?.[0]?.text) {
       return data.candidates[0].content.parts[0].text;
+    }
+
+    if (data?.promptFeedback?.blockReason) {
+      return `⚠️ Blocked: ${data.promptFeedback.blockReason}`;
     }
 
     return "⚠️ No response from Gemini.";
