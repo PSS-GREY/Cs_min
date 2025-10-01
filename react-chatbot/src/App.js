@@ -1,4 +1,3 @@
-// App.js
 import React, { useState, useEffect, useRef } from "react";
 import { searchKnowledgeBase } from "./kb";
 import { askGemini } from "./api";
@@ -11,6 +10,8 @@ function App() {
   ]);
   const [input, setInput] = useState("");
   const [listening, setListening] = useState(false);
+  const [file, setFile] = useState(null);   // ⬅️ for image file
+  const [result, setResult] = useState(null); // ⬅️ backend response
   const voiceRef = useRef(null);
 
   // Initialize voice recognition
@@ -55,6 +56,41 @@ function App() {
     }
   };
 
+  // ⬅️ Image upload submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!file) {
+      alert("Please select a file first!");
+      return;
+    }
+
+    let formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      let res = await fetch("https://skin-disease-model-backend.onrender.com/predict", {
+        method: "POST",
+        body: formData,
+      });
+
+      let data = await res.json();
+      console.log(data);
+      setResult(data);
+
+      // Show result in chat
+      setMessages((prev) => [
+        ...prev,
+        { sender: "user", text: "📷 Uploaded an image for analysis" },
+        { sender: "bot", text: `🧾 Prediction: ${data.prediction || "Unknown"}` }
+      ]);
+
+    } catch (err) {
+      console.error("Error", err);
+      setMessages((prev) => [...prev, { sender: "bot", text: "❌ Error analyzing the image." }]);
+    }
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 via-teal-400 to-green-400">
       <div className="w-full max-w-3xl bg-white/90 shadow-2xl rounded-2xl p-6 backdrop-blur-sm">
@@ -85,7 +121,7 @@ function App() {
           ))}
         </div>
 
-        {/* Input */}
+        {/* Text Input + Voice + Send */}
         <div className="flex mt-4">
           <input
             type="text"
@@ -114,6 +150,29 @@ function App() {
             Send
           </button>
         </div>
+
+        {/* Image Upload */}
+        <form onSubmit={handleSubmit} className="mt-4 flex items-center gap-2">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setFile(e.target.files[0])}
+            className="border p-2 rounded-lg"
+          />
+          <button
+            type="submit"
+            className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
+          >
+            Upload Image
+          </button>
+        </form>
+
+        {result && (
+          <div className="mt-4 p-3 bg-gray-100 rounded-lg">
+            <h2 className="font-bold">Result:</h2>
+            <p>Prediction: {result.prediction}</p>
+          </div>
+        )}
       </div>
     </div>
   );
