@@ -1,49 +1,42 @@
 // api.js
-
-// ✅ Ask Gemini via your Flask backend
 export async function askGemini(query) {
+  const API_KEY = "AIzaSyCJWnTWiGD_QwZmVemQUwbbT0TBQ7PSrK4"; // 🔑 replace with your key
+  const MODEL = "models/gemini-2.0-flash"; // ✅ correct model name
+
   try {
-    const res = await fetch("https://your-backend.onrender.com/gemini", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query }),
-    });
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/${MODEL}:generateContent?key=${API_KEY}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: query }],
+            },
+          ],
+        }),
+      }
+    );
 
     const data = await res.json();
-    console.log("Gemini API Response:", data);
+    console.log("Gemini raw response:", data);
 
-    if (data.text) {
-      return data.text; // Flask returns { "text": "..." }
+    // ✅ Extract text safely
+    if (data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+      return data.candidates[0].content.parts[0].text;
     }
-    if (data.error) {
-      return `⚠️ Error: ${data.error}`;
+
+    if (data?.promptFeedback?.blockReason) {
+      return `⚠️ Blocked: ${data.promptFeedback.blockReason}`;
     }
 
     return "⚠️ No response from Gemini.";
   } catch (err) {
     console.error("Gemini API Error:", err);
     return "⚠️ Error: Could not reach Gemini service.";
-  }
-}
-
-
-// ✅ Skin Disease Prediction
-export async function predictSkinDisease(file) {
-  try {
-    let formData = new FormData();
-    formData.append("file", file);
-
-    const res = await fetch("https://your-backend.onrender.com/predict", {
-      method: "POST",
-      body: formData,
-    });
-
-    const data = await res.json();
-    console.log("Prediction API Response:", data);
-
-    return data; // { res: "Melanoma", confidence: 0.95 }
-  } catch (err) {
-    console.error("Prediction API Error:", err);
-    return { error: "⚠️ Could not analyze the image." };
   }
 }
