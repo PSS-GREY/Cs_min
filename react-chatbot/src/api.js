@@ -6,19 +6,24 @@ export async function askGemini(query) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ query }), // sending { query: "..." } to Flask
+      body: JSON.stringify({ query }),
     });
 
     const data = await res.json();
     console.log("Gemini raw response:", data);
 
-    // ✅ Extract paragraph safely
+    // ✅ Match backend: { "text": "..." }
+    if (data?.text) {
+      return data.text;
+    }
+
+    // ✅ Optional: fallback if backend changes later
     if (data?.candidates?.[0]?.content?.parts?.[0]?.text) {
       return data.candidates[0].content.parts[0].text;
     }
 
-    if (data?.promptFeedback?.blockReason) {
-      return `⚠️ Blocked: ${data.promptFeedback.blockReason}`;
+    if (data?.response) {
+      return data.response;
     }
 
     return "⚠️ No response from Gemini.";
