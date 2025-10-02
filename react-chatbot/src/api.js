@@ -1,102 +1,49 @@
-from flask import Blueprint, request, jsonify
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing import image
-import numpy as np
-from io import BytesIO
-import requests
-import os
+// api.js
 
-main = Blueprint('main', __name__)
+// ✅ Ask Gemini via your Flask backend
+export async function askGemini(query) {
+  try {
+    const res = await fetch("https://your-backend.onrender.com/gemini", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query }),
+    });
 
-# -----------------------------
-# ✅ Gemini API Setup
-# -----------------------------
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
-GEMINI_MODEL = "gemini-1.5-flash"
+    const data = await res.json();
+    console.log("Gemini API Response:", data);
 
-@main.route('/gemini', methods=['POST'])
-def gemini():
-    try:
-        data = request.get_json()
-        query = data.get("query", "")
-        if not query:
-            return jsonify({"error": "No query provided"}), 400
+    if (data.text) {
+      return data.text; // Flask returns { "text": "..." }
+    }
+    if (data.error) {
+      return `⚠️ Error: ${data.error}`;
+    }
 
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent?key={GEMINI_API_KEY}"
-        payload = {
-            "contents": [
-                {
-                    "role": "user",
-                    "parts": [{"text": query}],
-                }
-            ],
-        }
-
-        r = requests.post(url, json=payload)
-        r.raise_for_status()
-        response = r.json()
-
-        # Extract Gemini response safely
-        text = (
-            response.get("candidates", [{}])[0]
-            .get("content", {})
-            .get("parts", [{}])[0]
-            .get("text", "")
-        )
-
-        return jsonify({"text": text})
-
-    except Exception as e:
-        print("Gemini Error:", e)
-        return jsonify({"error": str(e)}), 500
+    return "⚠️ No response from Gemini.";
+  } catch (err) {
+    console.error("Gemini API Error:", err);
+    return "⚠️ Error: Could not reach Gemini service.";
+  }
+}
 
 
-# -----------------------------
-# ✅ Skin Disease Model Setup
-# -----------------------------
-MODEL_PATH = "models/skin_cancer_model.h5"
-model = load_model(MODEL_PATH, compile=False)
+// ✅ Skin Disease Prediction
+export async function predictSkinDisease(file) {
+  try {
+    let formData = new FormData();
+    formData.append("file", file);
 
-class_names = [
-    'Actinic keratoses',
-    'Basal cell carcinoma',
-    'Benign keratosis-like lesions',
-    'Dermatofibroma',
-    'Melanoma',
-    'Melanocytic nevi',
-    'Vascular lesions'
-]
+    const res = await fetch("https://your-backend.onrender.com/predict", {
+      method: "POST",
+      body: formData,
+    });
 
-# Auto-detect expected input size (e.g. 224x224)
-input_shape = model.input_shape[1:3]
+    const data = await res.json();
+    console.log("Prediction API Response:", data);
 
-@main.route('/predict', methods=['POST'])
-def predict():
-    try:
-        if 'file' not in request.files:
-            return jsonify({'error': 'No file uploaded'}), 400
-
-        file = request.files['file']
-        img_bytes = BytesIO(file.read())
-
-        # Preprocess image
-        img = image.load_img(img_bytes, target_size=input_shape)
-        img_array = image.img_to_array(img) / 255.0
-        img_array = np.expand_dims(img_array, axis=0)
-
-        # Predict
-        prediction = model.predict(img_array)
-        predicted_class = class_names[np.argmax(prediction)]
-        confidence = float(np.max(prediction))
-
-        print("Prediction array:", prediction)
-        print("Predicted class:", predicted_class, "Confidence:", confidence)
-
-        return jsonify({
-            "res": predicted_class,
-            "confidence": confidence
-        }), 200
-
-    except Exception as e:
-        print("Prediction Error:", str(e))
-        return jsonify({"error": str(e)}), 500
+    return data; // { res: "Melanoma", confidence: 0.95 }
+  } catch (err) {
+    console.error("Prediction API Error:", err);
+    return { error: "⚠️ Could not analyze the image." };
+  }
+}
