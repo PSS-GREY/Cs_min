@@ -59,11 +59,13 @@ model = load_model(MODEL_PATH, compile=False)
 
 class_names = [
     'Actinic keratoses',
-    'Basal cell carcinoma',
+    'Atopic Dermatitis',
     'Benign keratosis-like lesions',
     'Dermatofibroma',
     'Melanoma',
     'Melanocytic nevi',
+'Squamous cell carcinoma',
+'Tinea Ringworm Candidiasis',
     'Vascular lesions'
 ]
 
