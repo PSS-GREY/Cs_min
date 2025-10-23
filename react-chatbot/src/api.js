@@ -1,6 +1,6 @@
 // api.js
 export async function askGemini(query) {
-  const API_KEY = "AIzaSyCzs5YLLT_qZz90-AqC1B6r-nEgtTL2Gxg"; // 🔑 replace with your key
+  const API_KEY = "AIzaSyBF6VnSBrOrPMgVrg6AY5lM-vb3gmYdNRM"; // 🔑 replace with your key
   const MODEL = "models/gemini-2.0-flash"; // ✅ correct model name
 
   try {
