@@ -9,7 +9,7 @@ app.use(express.json());
 
 app.post("/gemini", async (req, res) => {
   const { query } = req.body;
-  const API_KEY = "AIzaSyDZS7tBch_tpyj9imIAg_zIZZZ3bXLMH2A";
+  const API_KEY = "AIzaSyBF6VnSBrOrPMgVrg6AY5lM-vb3gmYdNRM";
   const MODEL = "models/gemini-1.5-flash";
 
   try {
